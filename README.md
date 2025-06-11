@@ -1,49 +1,69 @@
-# Requirements:
-- git (optional if you download the repo zip instead)
-- docker
-- docker-compose
+# Compile Drivers for Coral Edge TPU on Alpine Linux
 
-# Building the kernel modules
+This guide describes how to compile and install the kernel modules required for using the Google Coral Edge TPU on Alpine Linux. It is intended for advanced users and hobbyists who want to use Coral PCIe devices on custom Alpine-based systems.
+
+## Requirements:
+Make sure you have the following installed on your build machine:
+- `git`
+- `docker`
+- `docker-compose`
+
+## Building the Kernel Modules
 ```bash
-git clone https://github.com/fr4nk3n5731n/alpine-coral-tpu.git
+git clone https://github.com/sebastianzehner/alpine-coral-tpu.git
 cd alpine-coral-tpu
 make
 ```
-this should create `apex.ko` and `gasket.ko` in the `./output` directory
+This will create `apex.ko` and `gasket.ko` in the `./output` directory.
 
-# Installing the kernel modules
-1. copy the kernel modules into /lib/modules/<kernel-version>/
-2. `depmod`
-3. `modprobe gasket`
-3. `modprobe apex`
-4. add `gasket` and `apex` to your `/etc/modules` files
-
-## Example
-assuming that we compiled the modules locally and want to deploy those modules to a target system running Alpine 3.20.2 with Kernel `linux-virt` version `6.6.71-r0`
+## Installing the Kernel Modules
+Copy the kernel modules into the appropriate directory for your kernel version:
 ```bash
-# on the machine you used to build the modules, copy the files to the target system
-scp "output/*.ko" root@192.168.122.10:/lib/modules/6.6.71-0-virt/
-
-# on the target system
+cp output/*.ko /lib/modules/<kernel-version>/
 depmod
 modprobe gasket
 modprobe apex
+```
 
-# adds modules  to modules file if it doesn't exist already
+To load the modules automatically at boot, add them to `/etc/modules`:
+```bash
 grep gasket /etc/modules || echo "gasket" >> /etc/modules
 grep apex /etc/modules || echo "apex" >> /etc/modules
 ```
 
-# Customisation
-keep in mind that just changing the kernel Version might not work due to the version pinning of other installed libraries.
-You might need to reference https://pkgs.alpinelinux.org/packages?branch=v3.20&repo=&arch=&maintainer= to update the versions.
-## Environment Variables
-| Variable         | Default     | Description        |
-|------------------|-------------|--------------------|
-| `KERNEL_VERSION` | `6.6.71-r0` |                    |
-| `KERNEL_VARIANT` | `virt`      | options: lts, virt |
+## Example
+Assuming you compiled the modules locally and want to deploy them to a target system running Alpine 3.22.0 with the `linux-lts` kernel version `6.12.33-0`:
 
-# TODOs:
-- add APKBUILD to alpine package
-- build CI pipeline to compile the Modules and stuff them into an alpine package
-- add support to compile for different CPU architectures
+### On the build machine:
+```bash
+scp output/*.ko root@192.168.7.151:/lib/modules/6.12.33-0-lts/
+```
+
+### On the target system:
+```bash
+depmod
+modprobe gasket
+modprobe apex
+
+# Optional: Ensure modules are loaded on boot
+grep gasket /etc/modules || echo "gasket" >> /etc/modules
+grep apex /etc/modules || echo "apex" >> /etc/modules
+```
+
+## Customisation
+Keep in mind that simply changing the kernel version might not be enough due to version pinning of other installed libraries. If needed, refer to the Alpine package index for updated versions:
+https://pkgs.alpinelinux.org/packages?branch=v3.22
+
+### Environment Variables
+You can override these environment variables to match your target setup:
+| Variable         | Default     | Description                   |
+|------------------|-------------|-------------------------------|
+| `KERNEL_VERSION` | `6.12.33`   | Kernel version to compile for |
+| `KERNEL_RELEASE` | `0`         | Release number                |
+| `KERNEL_VARIANT` | `lts`       | Options: `lts`, `virt`        |
+
+## Disclaimer
+
+I'm not a professional developer - just a hobbyist sharing my personal setup.  
+This build is provided as-is, with no guarantees that it will work for you.  
+If something breaks, you're on your own - but feel free to explore, adapt, and improve!
