@@ -1,6 +1,6 @@
-FROM alpine:3.22.0 AS base
+FROM alpine:3.22.1 AS base
 
-ARG KERNEL_VERSION=6.12.34
+ARG KERNEL_VERSION=6.12.40
 ENV KERNEL_VERSION=$KERNEL_VERSION
 ARG KERNEL_RELEASE=0
 ENV KERNEL_RELEASE=$KERNEL_RELEASE
@@ -11,7 +11,7 @@ RUN \
 apk add -U --no-cache \
 alpine-sdk=1.1-r0 \
 build-base=0.5-r3 \
-git=2.49.0-r0 \
+git=2.49.1-r0 \
 pahole=1.30-r0 \
 grep=3.12-r0 \
 coreutils=9.7-r1 \
