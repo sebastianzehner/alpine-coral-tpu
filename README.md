@@ -19,10 +19,10 @@ This will create `apex.ko` and `gasket.ko` in the `./output` directory.
 ## Installing the Kernel Modules
 Copy the kernel modules into the appropriate directory for your kernel version:
 ```bash
-cp output/*.ko /lib/modules/<kernel-version>/
-depmod
-modprobe gasket
-modprobe apex
+doas cp output/*.ko /lib/modules/<kernel-version>/
+doas depmod
+doas modprobe gasket
+doas modprobe apex
 ```
 
 To load the modules automatically at boot, add them to `/etc/modules`:
@@ -32,11 +32,11 @@ grep apex /etc/modules || echo "apex" >> /etc/modules
 ```
 
 ## Example
-Assuming you compiled the modules locally and want to deploy them to a target system running Alpine 3.22.1 with the `linux-lts` kernel version `6.12.58-0`:
+Assuming you compiled the modules locally and want to deploy them to a target system running Alpine 3.22.1 with the `linux-lts` kernel version `6.12.61-0`:
 
 ### On the build machine:
 ```bash
-scp output/*.ko root@192.168.7.151:/lib/modules/6.12.58-0-lts/
+scp output/*.ko root@192.168.7.151:/lib/modules/6.12.61-0-lts/
 ```
 
 ### On the target system:
@@ -58,7 +58,7 @@ https://pkgs.alpinelinux.org/packages?branch=v3.22
 You can override these environment variables to match your target setup:
 | Variable         | Default     | Description                   |
 |------------------|-------------|-------------------------------|
-| `KERNEL_VERSION` | `6.12.58`   | Kernel version to compile for |
+| `KERNEL_VERSION` | `6.12.61`   | Kernel version to compile for |
 | `KERNEL_RELEASE` | `0`         | Release number                |
 | `KERNEL_VARIANT` | `lts`       | Options: `lts`, `virt`        |
 
